@@ -1,0 +1,8 @@
+deepface
+tf-keras
+opencv-python
+numpy
+streamlit
+google-search-results
+requests
+python-dotenv
