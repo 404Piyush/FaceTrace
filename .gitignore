@@ -2,5 +2,9 @@ __pycache__/
 .venv/
 .env
 chain.json
+models/*.onnx
 gallery/*.jpg
 input.jpg
+face_id_hist_backup.py
+download_model.py
+download_yunet.py
