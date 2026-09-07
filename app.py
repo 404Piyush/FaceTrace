@@ -97,5 +97,8 @@ if "post" in st.session_state:
         cur["text"] = snippet
         cur_fp = blockchain.fingerprint(cur)
         ok = blockchain.verify(cur_fp, st.session_state["att"]["tx_hash"])
-        st.success(f"MATCH block #{st.session_state['att']['block']}") if ok else st.error("FAIL: TAMPER DETECTED")
+        if ok:
+            st.success(f"MATCH block #{st.session_state['att']['block']}")
+        else:
+            st.error("FAIL: TAMPER DETECTED")
         st.code(json.dumps({"expected_fp": st.session_state["fp"], "recomputed_fp": cur_fp}, indent=2))
