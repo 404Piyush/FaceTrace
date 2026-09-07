@@ -1,7 +1,6 @@
 opencv-python
 numpy
 onnxruntime
-mediapipe
 streamlit
 google-search-results
 requests
