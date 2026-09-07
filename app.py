@@ -16,17 +16,37 @@ st.set_page_config(page_title="Face -> Web -> Chain Verify", layout="wide")
 st.title("Face Identification + Blockchain Verification")
 
 query_file = st.file_uploader("1. Upload face scan (input.jpg)", type=["jpg", "jpeg", "png"])
-public_url = st.text_input("Public URL of query image (upload to catbox.moe first, Lens needs a URL)")
+public_url = st.text_input(
+    "Public URL of query image (optional — auto-uploads your scan to catbox.moe if left blank)"
+)
 api_key = st.text_input("SerpAPI key (or set SERPAPI_KEY in .env)", type="password")
 
 if query_file:
     Path("input.jpg").write_bytes(query_file.getvalue())
     st.image("input.jpg", caption="Query face", width=240)
 
+
+def _auto_upload(path: str) -> str:
+    with open(path, "rb") as f:
+        r = search_mod.requests.post(
+            "https://catbox.moe/user/api.php",
+            files={"fileToUpload": f},
+            data={"reqtype": "fileupload"},
+            timeout=60,
+        )
+    r.raise_for_status()
+    url = r.text.strip()
+    if not url.startswith("http"):
+        raise RuntimeError(f"catbox upload failed: {url[:100]}")
+    return url
+
 if st.button("Search web for matching post"):
     with st.spinner("Calling SerpAPI Google Lens..."):
         try:
-            cands = search_mod.lens_search(public_url, api_key or None)
+            url = public_url.strip() or _auto_upload("input.jpg")
+            if not public_url.strip():
+                st.info(f"Auto-uploaded scan for Lens: {url}")
+            cands = search_mod.lens_search(url, api_key or None)
             st.session_state["raw_response"] = True
         except Exception as e:
             st.warning(f"Live search failed ({e}), using cached candidates.json")
